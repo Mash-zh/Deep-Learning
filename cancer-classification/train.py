@@ -66,4 +66,4 @@ if __name__ == '__main__':
     net_list = ['resnet18', 'resnet34', 'vgg16', 'efficientnet_v2_m', 'inception3']
     for net_name in net_list:
         loss_csv = net_name+'loss.csv'
-        train(epochs, 'vgg16', loss_csv)
+        train(epochs, net_name, loss_csv)
