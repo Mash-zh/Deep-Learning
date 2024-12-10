@@ -6,7 +6,7 @@ from torch.utils.data import DataLoader
 from dataset import CustomDataset
 
 # 1. 加载预训练的ResNet18模型
-resnet = models.resnet18(pretrained=True)
+resnet = models.resnet18(pretrained=False)
 
 # 2. 修改最后的全连接层为二分类
 num_classes = 2  # 二分类
