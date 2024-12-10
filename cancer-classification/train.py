@@ -7,7 +7,9 @@ from torch.utils.data import DataLoader
 from dataset import CustomDataset
 import pandas as pd
 from net import CustomNet
+import glob
 
+os.environ['PYTORCH_CUDA_ALLOC_CONF'] = 'expandable_segments:True'
 # 训练循环
 def train(epochs, net_name, loss_csv):
     net = CustomNet(net_name)
@@ -26,13 +28,14 @@ def train(epochs, net_name, loss_csv):
 
     # 4. 加载数据集（示例使用ImageFolder）
     train_dataset = CustomDataset('train', transform=transform)
-    train_loader = DataLoader(train_dataset, batch_size=64, shuffle=True)
+    train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
 
     # 5. 定义损失函数和优化器
     criterion = nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(net.parameters(), lr=0.001)
 
     for epoch in range(epochs):
+        torch.cuda.empty_cache()
         net.train()
         running_loss = 0.0
         for images, labels in train_loader:
@@ -47,21 +50,26 @@ def train(epochs, net_name, loss_csv):
             optimizer.step()
 
             running_loss += loss.item()
-        print(f'Epoch [{epoch+1}/{epochs}], Loss: {running_loss/len(train_loader):.4f}')
         dataframe = pd.DataFrame({'epoch': [epoch+1], 'loss': [running_loss/len(train_loader)]})
         if os.path.exists(loss_csv):
             dataframe.to_csv(loss_csv, mode='a', header=False, index=False)
         else:
             min_loss = running_loss/len(train_loader)
             dataframe.to_csv(loss_csv, index=False)
-        if min_loss > running_loss/len(train_loader):
-            min_loss = running_loss/len(train_loader)
             model_name = net_name+'_model_weights_'+str(min_loss)+'.pth'
             torch.save(net.state_dict(), model_name)
+        if min_loss > running_loss/len(train_loader):
+            min_loss = running_loss/len(train_loader)
+            files = glob.glob(net_name+'_model_weights_*')
+            for file in files:
+                os.remove(file)
+            model_name = net_name+'_model_weights_'+str(min_loss)+'.pth'
+            torch.save(net.state_dict(), model_name)
+        torch.cuda.empty_cache()
     print(net_name+"训练完成！")
 
 if __name__ == '__main__':
-    epochs = 100
+    epochs = 5
     # 'resnet18' 'resnet34' 'vgg16' 'efficientnet_v2_m' 'inception3'
     net_list = ['resnet18', 'resnet34', 'vgg16', 'efficientnet_v2_m', 'inception3']
     for net_name in net_list:
