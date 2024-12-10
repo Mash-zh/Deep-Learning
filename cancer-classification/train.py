@@ -11,7 +11,7 @@ import glob
 
 os.environ['PYTORCH_CUDA_ALLOC_CONF'] = 'expandable_segments:True'
 # 训练循环
-def train(epochs, net_name, loss_csv):
+def train(epochs, net_name, loss_csv, data_path):
     net = CustomNet(net_name)
     net = net.__net__()
 
@@ -27,7 +27,7 @@ def train(epochs, net_name, loss_csv):
     ])
 
     # 4. 加载数据集（示例使用ImageFolder）
-    train_dataset = CustomDataset('train', transform=transform)
+    train_dataset = CustomDataset(data_path, transform=transform)
     train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
 
     # 5. 定义损失函数和优化器
@@ -70,8 +70,9 @@ def train(epochs, net_name, loss_csv):
 
 if __name__ == '__main__':
     epochs = 5
+    data_path = 'train'
     # 'resnet18' 'resnet34' 'vgg16' 'efficientnet_v2_m' 'inception3'
     net_list = ['resnet18', 'resnet34', 'vgg16', 'efficientnet_v2_m', 'inception3']
     for net_name in net_list:
         loss_csv = net_name+'_loss.csv'
-        train(epochs, net_name, loss_csv)
+        train(epochs, net_name, loss_csv, data_path)
