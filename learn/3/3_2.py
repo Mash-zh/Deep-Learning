@@ -2,9 +2,8 @@ import random
 import torch
 from d2l import torch as d2l
 
-
 def synthetic_data(w, b, num_examples):  #@save
-    """生成y=Xw+b+噪声"""
+    #生成y=Xw+b+噪声
     X = torch.normal(0, 1, (num_examples, len(w)))
     y = torch.matmul(X, w) + b
     y += torch.normal(0, 0.01, y.shape)
@@ -35,15 +34,15 @@ batch_size = 10
     # break
 
 def linreg(X, w, b):  #@save
-    """线性回归模型"""
+    #线性回归模型
     return torch.matmul(X, w) + b
 
 def squared_loss(y_hat, y):  #@save
-    """均方损失"""
+    #均方损失
     return (y_hat - y.reshape(y_hat.shape)) ** 2 / 2
 
 def sgd(params, lr, batch_size):  #@save
-    """小批量随机梯度下降"""
+    #小批量随机梯度下降
     with torch.no_grad():
         for param in params:
             param -= lr * param.grad / batch_size
