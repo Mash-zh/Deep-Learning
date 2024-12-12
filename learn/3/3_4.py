@@ -15,9 +15,6 @@ def train(num_epochs, net, train_iter, loss, trainer):
             l.backward()
             trainer.step()
 
-def test():
-
-
 if __name__ == '__main__':
     batch_size = 256
     train_iter, test_iter = d2l.load_data_fashion_mnist(batch_size)
